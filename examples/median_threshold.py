@@ -4,11 +4,12 @@ import numpy as np
 import gbsecuritycamera as gbsc
 import gbvision as gbv
 
-stdv = np.array([40, 40, 40])
+stdv = np.array([5, 10, 10])
 
 
 def main():
-    camera = gbsc.SecurityCamera('192.168.1.251')
+    camera = gbsc.SecurityCamera('10.0.0.8')
+    camera.set_frame_size(640, 480)
     window = gbv.CameraWindow('feed', camera)
     window.open()
     while True:

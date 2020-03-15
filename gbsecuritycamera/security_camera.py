@@ -8,11 +8,12 @@ import requests
 
 
 class SecurityCamera(gbv.USBCamera):
-    def __init__(self, ip: str, data=gbv.UNKNOWN_CAMERA, user='admin', password='admin'):
+    def __init__(self, ip: str, rtsp_port=554, data=gbv.UNKNOWN_CAMERA, user='admin', password=''):
         self.ip = ip
+        self.rtsp_port = rtsp_port
         self.user = user
         self.password = password
-        super().__init__(f'rtsp://{ip}:555', data)
+        super().__init__(f'rtsp://{ip}:{rtsp_port}', data)
 
     @staticmethod
     def __create_move_request(x, y):
