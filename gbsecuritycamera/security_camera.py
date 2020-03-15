@@ -5,6 +5,7 @@ from typing import Tuple
 
 import gbvision as gbv
 import requests
+import numpy as np
 
 
 class SecurityCamera(gbv.USBCamera):
@@ -16,8 +17,12 @@ class SecurityCamera(gbv.USBCamera):
         super().__init__(f'rtsp://{ip}:{rtsp_port}', data)
 
     @staticmethod
-    def __create_move_request(x, y):
-        return ('continuouspantiltmove', f'{x}, {y}'),
+    def __create_continues_move_request(speed_x, speed_y):
+        return ('continuouspantiltmove', f'{speed_x}, {speed_y}'),
+
+    @staticmethod
+    def __create_move_request(move, speed):
+        return ('move', move), ('speed', speed), ('random', np.random.rand())
 
     def __request(self, action: str, params: Tuple):
         """
@@ -33,19 +38,22 @@ class SecurityCamera(gbv.USBCamera):
         headers = {'Authorization': f'Basic {auth.decode()}'}
         return requests.get(f'http://{self.ip}/{action}', headers=headers, params=params)
 
-    def __send_move_action(self, params):
+    def __send_action(self, params):
         self.__request('ptz.cgi', params)
 
-    def set_power(self, x, y):
-        self.__send_move_action(self.__create_move_request(x, y))
+    def set_power(self, speed_x, speed_y):
+        self.__send_action(self.__create_continues_move_request(speed_x, speed_y))
 
     def stop(self):
         self.set_power(0, 0)
 
-    def set_power_timeout(self, x, y, timeout):
+    def set_power_timeout(self, speed_x, speed_y, timeout):
         def __proc():
-            self.set_power(x, y)
+            self.set_power(speed_x, speed_y)
             time.sleep(timeout)
             self.stop()
 
         Thread(target=__proc).start()
+
+    def to_home(self, speed=50):
+        self.__send_action(self.__create_move_request('home', speed))

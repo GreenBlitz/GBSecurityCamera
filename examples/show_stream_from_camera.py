@@ -8,7 +8,6 @@ def main():
     # camera.wait_start_reading()
     window = gbv.CameraWindow('feed', camera)
 
-    camera.set_power_timeout(-1.0, -1.0, 0)
     window.show()
 
 
